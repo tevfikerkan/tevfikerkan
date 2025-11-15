@@ -134,7 +134,19 @@ function fursonaprints_result_page_shortcode() {
     </div>
 
     <div id="ai-result">
+        <h2 style="font-family: Georgia, serif; color: #8b6914; margin-bottom: 20px;">Your Royal Pet Portrait</h2>
         <img id="ai-image" src="" alt="AI Generated Portrait" />
+
+        <!-- Product Mockups Section -->
+        <div id="mockups-section" style="display: none; margin-top: 60px;">
+            <h3 style="font-family: Georgia, serif; color: #8b6914; margin-bottom: 30px;">See it on Premium Products</h3>
+            <div id="mockups-loading" style="text-align: center; padding: 40px;">
+                <p style="color: #8b6914; font-family: Georgia, serif;">Loading product mockups...</p>
+            </div>
+            <div id="mockups-gallery" style="display: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto;">
+                <!-- Mockups will be inserted here -->
+            </div>
+        </div>
     </div>
 
     <script>
@@ -202,6 +214,9 @@ function fursonaprints_result_page_shortcode() {
                         loadingEL.style.display = 'none';
                         resultEL.style.display = 'block';
                         imageEL.src = data.image_url;
+
+                        // Load mockups after showing the AI image
+                        loadMockups(jobId);
                     }, 500);
 
                     return;
@@ -222,6 +237,112 @@ function fursonaprints_result_page_shortcode() {
         }
 
         checkResult();
+
+        // Function to load product mockups
+        async function loadMockups(jobId) {
+            const mockupsSection = document.getElementById('mockups-section');
+            const mockupsLoading = document.getElementById('mockups-loading');
+            const mockupsGallery = document.getElementById('mockups-gallery');
+
+            // Show mockups section
+            mockupsSection.style.display = 'block';
+
+            let attempt = 0;
+            const maxAttempts = 20; // Try for about 1 minute
+
+            async function fetchMockups() {
+                attempt++;
+                console.log(`🖼️ Fetching mockups, attempt ${attempt}`);
+
+                try {
+                    const res = await fetch(`/wp-json/myplugin/v1/get-mockups?job_id=${jobId}`);
+                    const data = await res.json();
+
+                    console.log('Mockups response:', data);
+
+                    if (data.status === 'ready' && data.mockups && data.mockups.length > 0) {
+                        console.log(`✅ Found ${data.mockups.length} mockups`);
+
+                        mockupsLoading.style.display = 'none';
+                        mockupsGallery.style.display = 'grid';
+
+                        // Clear and populate gallery
+                        mockupsGallery.innerHTML = '';
+
+                        data.mockups.forEach((mockup, index) => {
+                            const mockupCard = document.createElement('div');
+                            mockupCard.style.cssText = `
+                                background: white;
+                                border-radius: 10px;
+                                overflow: hidden;
+                                box-shadow: 0 4px 15px rgba(139, 105, 20, 0.15);
+                                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                            `;
+                            mockupCard.onmouseenter = () => {
+                                mockupCard.style.transform = 'translateY(-5px)';
+                                mockupCard.style.boxShadow = '0 8px 25px rgba(139, 105, 20, 0.25)';
+                            };
+                            mockupCard.onmouseleave = () => {
+                                mockupCard.style.transform = 'translateY(0)';
+                                mockupCard.style.boxShadow = '0 4px 15px rgba(139, 105, 20, 0.15)';
+                            };
+
+                            const variantName = mockup.variant.includes('a4') ? 'A4 (8x12")' : 'A3 (12x16")';
+
+                            mockupCard.innerHTML = `
+                                <img src="${mockup.url}" alt="Product Mockup ${index + 1}"
+                                     style="width: 100%; height: auto; display: block;">
+                                <div style="padding: 20px; text-align: center;">
+                                    <h4 style="font-family: Georgia, serif; color: #8b6914; margin: 0 0 10px 0;">
+                                        Premium Matte Poster
+                                    </h4>
+                                    <p style="color: #666; font-size: 14px; margin: 0 0 15px 0;">${variantName}</p>
+                                    <button style="
+                                        background: linear-gradient(135deg, #8b6914, #d4af37);
+                                        color: white;
+                                        border: none;
+                                        padding: 12px 30px;
+                                        border-radius: 25px;
+                                        font-family: Georgia, serif;
+                                        font-size: 16px;
+                                        cursor: pointer;
+                                        transition: transform 0.2s ease;
+                                    " onmouseover="this.style.transform='scale(1.05)'"
+                                       onmouseout="this.style.transform='scale(1)'">
+                                        Order Now
+                                    </button>
+                                </div>
+                            `;
+
+                            mockupsGallery.appendChild(mockupCard);
+                        });
+
+                        return;
+                    }
+
+                    // If still pending and under max attempts, try again
+                    if (data.status === 'pending' && attempt < maxAttempts) {
+                        setTimeout(fetchMockups, 3000);
+                        return;
+                    }
+
+                    // Give up after max attempts
+                    if (attempt >= maxAttempts) {
+                        mockupsLoading.innerHTML = '<p style="color: #999;">Mockups are taking longer than expected. Please refresh the page.</p>';
+                    }
+
+                } catch (error) {
+                    console.error('Mockups fetch error:', error);
+                    if (attempt < maxAttempts) {
+                        setTimeout(fetchMockups, 3000);
+                    } else {
+                        mockupsLoading.innerHTML = '<p style="color: #999;">Unable to load mockups at this time.</p>';
+                    }
+                }
+            }
+
+            fetchMockups();
+        }
     })();
     </script>
     <?php

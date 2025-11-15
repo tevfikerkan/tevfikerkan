@@ -99,11 +99,36 @@ add_action('rest_api_init', function () {
 
             error_log("SUCCESS: Saved job_id: {$job_id}, post_id: {$post_id}");
 
+            // Create Gelato product with mockups
+            $gelato = new FursonaPrints_Gelato_API();
+            $product_title = 'Pet Portrait - ' . $job_id;
+
+            // Use WordPress attachment URL for better reliability
+            $gelato_image_url = wp_get_attachment_url($lowres_attachment_id);
+            if (!$gelato_image_url) {
+                $gelato_image_url = $image_url; // fallback to Replicate URL
+            }
+
+            error_log("Creating Gelato product with image: {$gelato_image_url}");
+
+            $gelato_response = $gelato->create_product_from_template($gelato_image_url, $product_title);
+
+            if (!is_wp_error($gelato_response) && isset($gelato_response['id'])) {
+                $gelato_product_id = $gelato_response['id'];
+                update_post_meta($post_id, 'gelato_product_id', $gelato_product_id);
+                error_log("Gelato product created: {$gelato_product_id}");
+            } else {
+                $error_msg = is_wp_error($gelato_response) ? $gelato_response->get_error_message() : 'Unknown error';
+                error_log("Gelato product creation failed: {$error_msg}");
+                // Don't fail the request, just log the error
+            }
+
             return rest_ensure_response([
                 'success' => true,
                 'post_id' => $post_id,
                 'attachment_id' => $lowres_attachment_id,
                 'input_attachment_id' => $input_attachment_id,
+                'gelato_product_id' => isset($gelato_product_id) ? $gelato_product_id : null,
             ]);
         },
         'permission_callback' => '__return_true',

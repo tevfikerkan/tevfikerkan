@@ -1,0 +1,148 @@
+<?php
+/**
+ * Gelato API Integration
+ */
+
+class FursonaPrints_Gelato_API {
+
+    private $api_key;
+    private $base_url;
+    private $store_id;
+
+    public function __construct() {
+        $this->api_key = '86333454-f353-4421-a74b-6958e886d77b-0a17da9f-c7af-4759-b63f-54b7b340cd2a:1985137e-c52f-41c5-80a8-a64eacba08ee';
+        $this->base_url = 'https://ecommerce.gelatoapis.com/v1';
+        $this->store_id = '2014c0be-e921-43d9-a234-ed3382da89e4';
+    }
+
+    /**
+     * Create product from template with AI generated image
+     *
+     * @param string $image_url URL of the AI generated pet portrait
+     * @param string $title Product title
+     * @param array $variants Product UIDs to create (optional)
+     * @return array|WP_Error Response data or error
+     */
+    public function create_product_from_template($image_url, $title = 'Pet Portrait', $variants = []) {
+        error_log("=== GELATO: Creating product ===");
+        error_log("Image URL: {$image_url}");
+
+        // Default variants (A4 and A3)
+        if (empty($variants)) {
+            $variants = [
+                'flat_a4-8x12-inch_200-gsm-80lb-uncoated_4-0_ver',
+                'flat_a3_200-gsm-80lb-uncoated_4-0_ver'
+            ];
+        }
+
+        $endpoint = "{$this->base_url}/stores/{$this->store_id}/products:create-from-template";
+
+        $body = [
+            'templateId' => '85d917c6-b1c1-4637-a724-f4f267a37c27',
+            'title' => $title,
+            'images' => [
+                [
+                    'layerName' => 'pet_portrait',
+                    'imageUrl' => $image_url
+                ]
+            ],
+            'productUids' => $variants
+        ];
+
+        error_log("Request body: " . json_encode($body, JSON_PRETTY_PRINT));
+
+        $response = wp_remote_post($endpoint, [
+            'headers' => [
+                'X-API-KEY' => $this->api_key,
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($body),
+            'timeout' => 30
+        ]);
+
+        if (is_wp_error($response)) {
+            error_log("GELATO ERROR: " . $response->get_error_message());
+            return $response;
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        error_log("Response code: {$status_code}");
+        error_log("Response body: " . $body);
+
+        if ($status_code !== 200 && $status_code !== 201) {
+            $error_msg = isset($data['message']) ? $data['message'] : 'Unknown error';
+            error_log("GELATO ERROR: {$error_msg}");
+            return new WP_Error('gelato_error', $error_msg, ['status' => $status_code]);
+        }
+
+        error_log("SUCCESS: Product created with ID: " . ($data['id'] ?? 'unknown'));
+
+        return $data;
+    }
+
+    /**
+     * Get product details including mockups
+     *
+     * @param string $product_id Gelato product ID
+     * @return array|WP_Error Product data or error
+     */
+    public function get_product($product_id) {
+        error_log("=== GELATO: Getting product {$product_id} ===");
+
+        $endpoint = "{$this->base_url}/stores/{$this->store_id}/products/{$product_id}";
+
+        $response = wp_remote_get($endpoint, [
+            'headers' => [
+                'X-API-KEY' => $this->api_key
+            ],
+            'timeout' => 15
+        ]);
+
+        if (is_wp_error($response)) {
+            error_log("GELATO ERROR: " . $response->get_error_message());
+            return $response;
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        error_log("Response code: {$status_code}");
+
+        if ($status_code !== 200) {
+            $error_msg = isset($data['message']) ? $data['message'] : 'Product not found';
+            error_log("GELATO ERROR: {$error_msg}");
+            return new WP_Error('gelato_error', $error_msg, ['status' => $status_code]);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Extract mockup URLs from product data
+     *
+     * @param array $product_data Product data from Gelato API
+     * @return array Array of mockup URLs
+     */
+    public function get_mockup_urls($product_data) {
+        $mockups = [];
+
+        if (isset($product_data['productImages']) && is_array($product_data['productImages'])) {
+            foreach ($product_data['productImages'] as $image) {
+                if (isset($image['url'])) {
+                    $mockups[] = [
+                        'url' => $image['url'],
+                        'variant' => $image['productUid'] ?? 'unknown'
+                    ];
+                }
+            }
+        }
+
+        error_log("Found " . count($mockups) . " mockups");
+
+        return $mockups;
+    }
+}
