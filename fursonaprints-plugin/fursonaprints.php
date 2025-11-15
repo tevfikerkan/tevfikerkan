@@ -19,25 +19,10 @@ define('FURSONAPRINTS_URL', plugin_dir_url(__FILE__));
 
 // Include required files
 require_once FURSONAPRINTS_PATH . 'includes/class-cpt.php';
-require_once FURSONAPRINTS_PATH . 'includes/class-rest-api.php';
+require_once FURSONAPRINTS_PATH . 'includes/class-save-result.php';
+require_once FURSONAPRINTS_PATH . 'includes/class-check-result.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-form.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-result-page.php';
-
-// Initialize plugin
-function fursonaprints_init() {
-    // Initialize CPT
-    new FursonaPrints_CPT();
-    
-    // Initialize REST API
-    new FursonaPrints_REST_API();
-    
-    // Initialize Form
-    new FursonaPrints_Form();
-    
-    // Initialize Result Page
-    new FursonaPrints_Result_Page();
-}
-add_action('plugins_loaded', 'fursonaprints_init');
 
 // Activation hook
 register_activation_hook(__FILE__, 'fursonaprints_activate');
