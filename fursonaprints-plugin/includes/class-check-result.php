@@ -4,11 +4,16 @@ add_action('rest_api_init', function () {
         'methods' => 'GET',
         'callback' => function ($request) {
             $job_id = sanitize_text_field($request->get_param('job_id'));
-            
+
+            error_log("=== CHECK RESULT: job_id={$job_id} ===");
+
             // Replicate URL'sini kontrol et (eski sistem için)
             $replicate_url = get_option("ai_result_{$job_id}");
-            
+
+            error_log("Option value: " . ($replicate_url ? $replicate_url : 'NOT FOUND'));
+
             if (!$replicate_url) {
+                error_log("Result PENDING for job_id: {$job_id}");
                 return rest_ensure_response([
                     'status' => 'pending',
                     'image_url' => null,

@@ -3,16 +3,25 @@ add_action('rest_api_init', function () {
     register_rest_route('myplugin/v1', '/save-result', [
         'methods' => 'POST',
         'callback' => function ($request) {
+            // Debug: Gelen tüm verileri logla
+            error_log('=== SAVE RESULT REQUEST ===');
+            error_log('Headers: ' . print_r($request->get_headers(), true));
+            error_log('Body: ' . $request->get_body());
+            error_log('Params: ' . print_r($request->get_params(), true));
+
             // Görüntüdeki değişken isimleriyle eşleşme yapıldı
             $job_id           = sanitize_text_field($request->get_param('job_id'));
             $image_url        = esc_url_raw($request->get_param('image_url')); // Sonuç görseli URL'si
             $gender           = sanitize_text_field($request->get_param('gender'));
             $prompt           = sanitize_textarea_field($request->get_param('prompt'));
-            
+
             // Görüntüdeki 'input_image' değişken adı kullanıldı
             $input_image_url  = esc_url_raw($request->get_param('input_image')); // Giriş görseli URL'si
 
+            error_log("Parsed - job_id: {$job_id}, image_url: {$image_url}");
+
             if (!$job_id || !$image_url) {
+                error_log('ERROR: Missing job_id or image_url');
                 return new WP_REST_Response(['error' => 'Missing job_id or image_url'], 400);
             }
 
@@ -87,6 +96,8 @@ add_action('rest_api_init', function () {
 
             // Eski sistemle uyumluluk için kayıt
             update_option("ai_result_{$job_id}", $image_url);
+
+            error_log("SUCCESS: Saved job_id: {$job_id}, post_id: {$post_id}");
 
             return rest_ensure_response([
                 'success' => true,
