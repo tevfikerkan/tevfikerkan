@@ -10,9 +10,15 @@ class FursonaPrints_Gelato_API {
     private $store_id;
 
     public function __construct() {
-        $this->api_key = '86333454-f353-4421-a74b-6958e886d77b-0a17da9f-c7af-4759-b63f-54b7b340cd2a:1985137e-c52f-41c5-80a8-a64eacba08ee';
+        // Get API credentials from WordPress options
+        $this->api_key = get_option('fursonaprints_gelato_api_key', '');
+        $this->store_id = get_option('fursonaprints_gelato_store_id', '');
         $this->base_url = 'https://ecommerce.gelatoapis.com/v1';
-        $this->store_id = '2014c0be-e921-43d9-a234-ed3382da89e4';
+
+        // Log warning if credentials are not configured
+        if (empty($this->api_key) || empty($this->store_id)) {
+            error_log('FursonaPrints: Gelato API credentials not configured. Please configure in Settings > FursonaPrints');
+        }
     }
 
     /**

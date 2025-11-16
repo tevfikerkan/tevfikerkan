@@ -18,6 +18,7 @@ define('FURSONAPRINTS_PATH', plugin_dir_path(__FILE__));
 define('FURSONAPRINTS_URL', plugin_dir_url(__FILE__));
 
 // Include required files
+require_once FURSONAPRINTS_PATH . 'includes/class-admin-settings.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-cpt.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-gelato-api.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-save-result.php';
