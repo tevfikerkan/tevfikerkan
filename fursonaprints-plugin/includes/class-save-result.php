@@ -3,7 +3,7 @@
  * Save AI Result Endpoint
  *
  * @package FursonaPrints
- * @version 0.1.1.3
+ * @version 0.1.1.4
  * @author The WP Clan
  */
 

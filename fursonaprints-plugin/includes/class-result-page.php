@@ -3,7 +3,7 @@
  * AI Result Page Shortcode
  *
  * @package FursonaPrints
- * @version 0.1.1.3
+ * @version 0.1.1.4
  * @author The WP Clan
  */
 
@@ -292,7 +292,7 @@ function fursonaprints_result_page_shortcode() {
             debugLog(`🚀 Starting mockup loading for job_id: ${jobId}`, 'info');
 
             let attempt = 0;
-            const maxAttempts = 20; // Try for about 1 minute
+            const maxAttempts = 40; // Try for about 2 minutes (40 x 3 seconds)
 
             async function fetchMockups() {
                 attempt++;
@@ -312,6 +312,11 @@ function fursonaprints_result_page_shortcode() {
                     }
                     if (data.product_id) {
                         debugLog(`🆔 Gelato Product ID: ${data.product_id}`, 'info');
+                    }
+
+                    // Show full product data for debugging when no mockups
+                    if (data.product_data && data.mockups?.length === 0) {
+                        debugLog(`🔍 Full Gelato Response: ${JSON.stringify(data.product_data, null, 2)}`, 'warning');
                     }
 
                     if (data.status === 'ready' && data.mockups && data.mockups.length > 0) {
