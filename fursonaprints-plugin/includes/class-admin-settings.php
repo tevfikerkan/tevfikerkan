@@ -32,9 +32,15 @@ class FursonaPrints_Admin_Settings {
      * Register plugin settings
      */
     public function register_settings() {
+        // Register all settings
         register_setting('fursonaprints_settings', 'fursonaprints_gelato_api_key');
         register_setting('fursonaprints_settings', 'fursonaprints_gelato_store_id');
+        register_setting('fursonaprints_settings', 'fursonaprints_gelato_template_id');
+        register_setting('fursonaprints_settings', 'fursonaprints_gelato_layer_name');
+        register_setting('fursonaprints_settings', 'fursonaprints_gelato_variant_a4');
+        register_setting('fursonaprints_settings', 'fursonaprints_gelato_variant_a3');
 
+        // API Credentials Section
         add_settings_section(
             'fursonaprints_gelato_section',
             'Gelato API Configuration',
@@ -56,6 +62,54 @@ class FursonaPrints_Admin_Settings {
             [$this, 'render_store_id_field'],
             'fursonaprints-settings',
             'fursonaprints_gelato_section'
+        );
+
+        // Template Configuration Section
+        add_settings_section(
+            'fursonaprints_template_section',
+            'Gelato Template Configuration',
+            [$this, 'render_template_section'],
+            'fursonaprints-settings'
+        );
+
+        add_settings_field(
+            'fursonaprints_gelato_template_id',
+            'Template ID',
+            [$this, 'render_template_id_field'],
+            'fursonaprints-settings',
+            'fursonaprints_template_section'
+        );
+
+        add_settings_field(
+            'fursonaprints_gelato_layer_name',
+            'Image Layer Name',
+            [$this, 'render_layer_name_field'],
+            'fursonaprints-settings',
+            'fursonaprints_template_section'
+        );
+
+        // Product Variants Section
+        add_settings_section(
+            'fursonaprints_variants_section',
+            'Product Variants',
+            [$this, 'render_variants_section'],
+            'fursonaprints-settings'
+        );
+
+        add_settings_field(
+            'fursonaprints_gelato_variant_a4',
+            'A4 Product UID',
+            [$this, 'render_variant_a4_field'],
+            'fursonaprints-settings',
+            'fursonaprints_variants_section'
+        );
+
+        add_settings_field(
+            'fursonaprints_gelato_variant_a3',
+            'A3 Product UID',
+            [$this, 'render_variant_a3_field'],
+            'fursonaprints-settings',
+            'fursonaprints_variants_section'
         );
     }
 
@@ -82,6 +136,56 @@ class FursonaPrints_Admin_Settings {
         $value = get_option('fursonaprints_gelato_store_id', '');
         echo '<input type="text" name="fursonaprints_gelato_store_id" value="' . esc_attr($value) . '" class="regular-text" />';
         echo '<p class="description">Your Gelato Store ID (UUID format)</p>';
+    }
+
+    /**
+     * Render Template section description
+     */
+    public function render_template_section() {
+        echo '<p>Configure the Gelato template settings for your product creation.</p>';
+    }
+
+    /**
+     * Render Template ID field
+     */
+    public function render_template_id_field() {
+        $value = get_option('fursonaprints_gelato_template_id', '85d917c6-b1c1-4637-a724-f4f267a37c27');
+        echo '<input type="text" name="fursonaprints_gelato_template_id" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">The Gelato template ID for your product (UUID format)</p>';
+    }
+
+    /**
+     * Render Layer Name field
+     */
+    public function render_layer_name_field() {
+        $value = get_option('fursonaprints_gelato_layer_name', 'pet_portrait');
+        echo '<input type="text" name="fursonaprints_gelato_layer_name" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">The image layer name in your Gelato template (e.g., "pet_portrait")</p>';
+    }
+
+    /**
+     * Render Variants section description
+     */
+    public function render_variants_section() {
+        echo '<p>Configure the product variants (sizes) to create for each AI-generated portrait.</p>';
+    }
+
+    /**
+     * Render A4 Variant field
+     */
+    public function render_variant_a4_field() {
+        $value = get_option('fursonaprints_gelato_variant_a4', 'flat_a4-8x12-inch_200-gsm-80lb-uncoated_4-0_ver');
+        echo '<input type="text" name="fursonaprints_gelato_variant_a4" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">Product UID for A4 size (8x12 inch)</p>';
+    }
+
+    /**
+     * Render A3 Variant field
+     */
+    public function render_variant_a3_field() {
+        $value = get_option('fursonaprints_gelato_variant_a3', 'flat_a3_200-gsm-80lb-uncoated_4-0_ver');
+        echo '<input type="text" name="fursonaprints_gelato_variant_a3" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">Product UID for A3 size (12x16 inch)</p>';
     }
 
     /**
