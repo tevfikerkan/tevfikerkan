@@ -1,7 +1,16 @@
 <?php
 /**
  * Gelato API Integration
+ *
+ * @package FursonaPrints
+ * @version 0.1.1.3
+ * @author The WP Clan
  */
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 class FursonaPrints_Gelato_API {
 

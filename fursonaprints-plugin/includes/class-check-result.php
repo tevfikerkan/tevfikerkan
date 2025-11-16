@@ -1,4 +1,17 @@
 <?php
+/**
+ * Check AI Result Endpoint
+ *
+ * @package FursonaPrints
+ * @version 0.1.1.3
+ * @author The WP Clan
+ */
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 add_action('rest_api_init', function () {
     register_rest_route('myplugin/v1', '/check-result', [
         'methods' => 'GET',

@@ -1,4 +1,17 @@
 <?php
+/**
+ * AI Result Page Shortcode
+ *
+ * @package FursonaPrints
+ * @version 0.1.1.3
+ * @author The WP Clan
+ */
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 // AI Result Page Shortcode
 function fursonaprints_result_page_shortcode() {
     ob_start();

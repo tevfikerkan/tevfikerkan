@@ -1,4 +1,17 @@
 <?php
+/**
+ * Pet Photo Upload Form Shortcode
+ *
+ * @package FursonaPrints
+ * @version 0.1.1.3
+ * @author The WP Clan
+ */
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 function pet_photo_gender_form_shortcode() {
     require_once ABSPATH . 'wp-admin/includes/file.php';
     require_once ABSPATH . 'wp-admin/includes/media.php';
