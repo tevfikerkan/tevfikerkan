@@ -3,6 +3,11 @@
  * Admin Settings Page for FursonaPrints
  */
 
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class FursonaPrints_Admin_Settings {
 
     public function __construct() {
@@ -113,5 +118,7 @@ class FursonaPrints_Admin_Settings {
     }
 }
 
-// Initialize admin settings
-new FursonaPrints_Admin_Settings();
+// Initialize admin settings only in admin context
+if (is_admin()) {
+    new FursonaPrints_Admin_Settings();
+}
