@@ -1,4 +1,17 @@
 <?php
+/**
+ * Custom Post Type Definition
+ *
+ * @package FursonaPrints
+ * @version 0.1.1.3
+ * @author The WP Clan
+ */
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 // 1. CPT Tanımı (ai_result)
 add_action('init', function () {
     register_post_type('ai_result', [
