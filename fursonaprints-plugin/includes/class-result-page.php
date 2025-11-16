@@ -153,6 +153,13 @@ function fursonaprints_result_page_shortcode() {
         <!-- Product Mockups Section -->
         <div id="mockups-section" style="display: none; margin-top: 60px;">
             <h3 style="font-family: Georgia, serif; color: #8b6914; margin-bottom: 30px;">See it on Premium Products</h3>
+
+            <!-- Debug Console -->
+            <div id="mockups-debug" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                <div style="font-weight: bold; margin-bottom: 10px; color: #333;">📋 Debug Log:</div>
+                <div id="debug-messages" style="color: #666;"></div>
+            </div>
+
             <div id="mockups-loading" style="text-align: center; padding: 40px;">
                 <p style="color: #8b6914; font-family: Georgia, serif;">Loading product mockups...</p>
             </div>
@@ -251,6 +258,29 @@ function fursonaprints_result_page_shortcode() {
 
         checkResult();
 
+        // Function to add debug message to screen
+        function debugLog(message, type = 'info') {
+            const debugMessages = document.getElementById('debug-messages');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#2196F3',
+                success: '#4CAF50',
+                error: '#f44336',
+                warning: '#ff9800'
+            };
+            const color = colors[type] || colors.info;
+
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = `margin-bottom: 5px; color: ${color};`;
+            msgDiv.innerHTML = `[${timestamp}] ${message}`;
+            debugMessages.appendChild(msgDiv);
+
+            // Auto scroll to bottom
+            debugMessages.parentElement.scrollTop = debugMessages.parentElement.scrollHeight;
+
+            console.log(message);
+        }
+
         // Function to load product mockups
         async function loadMockups(jobId) {
             const mockupsSection = document.getElementById('mockups-section');
@@ -259,22 +289,33 @@ function fursonaprints_result_page_shortcode() {
 
             // Show mockups section
             mockupsSection.style.display = 'block';
+            debugLog(`🚀 Starting mockup loading for job_id: ${jobId}`, 'info');
 
             let attempt = 0;
             const maxAttempts = 20; // Try for about 1 minute
 
             async function fetchMockups() {
                 attempt++;
-                console.log(`🖼️ Fetching mockups, attempt ${attempt}`);
+                debugLog(`📡 Attempt #${attempt}: Fetching mockups from API...`, 'info');
 
                 try {
-                    const res = await fetch(`/wp-json/myplugin/v1/get-mockups?job_id=${jobId}`);
-                    const data = await res.json();
+                    const endpoint = `/wp-json/myplugin/v1/get-mockups?job_id=${jobId}`;
+                    debugLog(`🌐 Endpoint: ${endpoint}`, 'info');
 
-                    console.log('Mockups response:', data);
+                    const res = await fetch(endpoint);
+                    debugLog(`📥 Response status: ${res.status} ${res.statusText}`, res.ok ? 'success' : 'error');
+
+                    const data = await res.json();
+                    debugLog(`📦 Response: status=${data.status}, mockups=${data.mockups?.length || 0}`, 'info');
+                    if (data.message) {
+                        debugLog(`💬 Message: ${data.message}`, data.status === 'error' ? 'error' : 'info');
+                    }
+                    if (data.product_id) {
+                        debugLog(`🆔 Gelato Product ID: ${data.product_id}`, 'info');
+                    }
 
                     if (data.status === 'ready' && data.mockups && data.mockups.length > 0) {
-                        console.log(`✅ Found ${data.mockups.length} mockups`);
+                        debugLog(`✅ SUCCESS! Found ${data.mockups.length} mockups`, 'success');
 
                         mockupsLoading.style.display = 'none';
                         mockupsGallery.style.display = 'grid';
@@ -335,20 +376,38 @@ function fursonaprints_result_page_shortcode() {
 
                     // If still pending and under max attempts, try again
                     if (data.status === 'pending' && attempt < maxAttempts) {
+                        debugLog(`⏳ Status: PENDING - Mockups not ready yet. Retrying in 3 seconds...`, 'warning');
                         setTimeout(fetchMockups, 3000);
                         return;
                     }
 
+                    if (data.status === 'not_found') {
+                        debugLog(`❌ ERROR: Post not found for job_id: ${jobId}`, 'error');
+                        debugLog(`💡 This means n8n may not have called /save-result endpoint yet`, 'warning');
+                        if (attempt < maxAttempts) {
+                            debugLog(`🔄 Will retry in 3 seconds...`, 'info');
+                            setTimeout(fetchMockups, 3000);
+                            return;
+                        }
+                    }
+
+                    if (data.status === 'error') {
+                        debugLog(`❌ API Error: ${data.message || 'Unknown error'}`, 'error');
+                    }
+
                     // Give up after max attempts
                     if (attempt >= maxAttempts) {
+                        debugLog(`⏰ TIMEOUT: Max attempts (${maxAttempts}) reached`, 'error');
                         mockupsLoading.innerHTML = '<p style="color: #999;">Mockups are taking longer than expected. Please refresh the page.</p>';
                     }
 
                 } catch (error) {
-                    console.error('Mockups fetch error:', error);
+                    debugLog(`❌ Fetch Error: ${error.message}`, 'error');
                     if (attempt < maxAttempts) {
+                        debugLog(`🔄 Retrying in 3 seconds...`, 'info');
                         setTimeout(fetchMockups, 3000);
                     } else {
+                        debugLog(`⏰ TIMEOUT: Giving up after ${maxAttempts} attempts`, 'error');
                         mockupsLoading.innerHTML = '<p style="color: #999;">Unable to load mockups at this time.</p>';
                     }
                 }
