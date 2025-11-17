@@ -140,6 +140,7 @@ class FursonaPrints_Gelato_API {
         $data = json_decode($body, true);
 
         error_log("Response code: {$status_code}");
+        error_log("Response body: " . $body);
 
         if ($status_code !== 200) {
             $error_msg = isset($data['message']) ? $data['message'] : 'Product not found';
@@ -158,6 +159,16 @@ class FursonaPrints_Gelato_API {
      */
     public function get_mockup_urls($product_data) {
         $mockups = [];
+
+        error_log("=== EXTRACTING MOCKUPS ===");
+        error_log("Product data keys: " . implode(', ', array_keys($product_data ?? [])));
+
+        if (isset($product_data['productImages'])) {
+            error_log("productImages exists, type: " . gettype($product_data['productImages']));
+            error_log("productImages content: " . json_encode($product_data['productImages']));
+        } else {
+            error_log("productImages NOT FOUND in response");
+        }
 
         if (isset($product_data['productImages']) && is_array($product_data['productImages'])) {
             foreach ($product_data['productImages'] as $image) {
