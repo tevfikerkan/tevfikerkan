@@ -2,7 +2,7 @@
 /**
  * Plugin Name: FursonaPrints
  * Description: AI Pet Portrait Generator with Gelato Print-on-Demand
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: Your Name
  * Text Domain: fursonaprints
  */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('FURSONAPRINTS_VERSION', '1.3.1');
+define('FURSONAPRINTS_VERSION', '1.3.2');
 define('FURSONAPRINTS_PATH', plugin_dir_path(__FILE__));
 define('FURSONAPRINTS_URL', plugin_dir_url(__FILE__));
 

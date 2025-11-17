@@ -51,7 +51,7 @@ function fursonaprints_gelato_webhook_handler($request) {
 
     // Extract event type and product ID
     $event_type = $data['eventType'] ?? $data['event'] ?? $data['type'] ?? 'unknown';
-    $product_id = $data['productId'] ?? $data['product_id'] ?? $data['id'] ?? null;
+    $product_id = $data['storeProductId'] ?? $data['productId'] ?? $data['product_id'] ?? $data['id'] ?? null;
 
     error_log("Event Type: {$event_type}");
     error_log("Product ID: {$product_id}");
