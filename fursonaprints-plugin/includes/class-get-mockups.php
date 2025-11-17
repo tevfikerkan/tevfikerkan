@@ -38,6 +38,21 @@ add_action('rest_api_init', function () {
             }
 
             $post_id = $posts[0]->ID;
+
+            // First, check if we have cached mockups from webhook
+            $cached_mockups = get_post_meta($post_id, 'gelato_mockups', true);
+
+            if (!empty($cached_mockups) && is_array($cached_mockups)) {
+                error_log("Returning " . count($cached_mockups) . " cached mockups from webhook");
+                return rest_ensure_response([
+                    'status' => 'ready',
+                    'mockups' => $cached_mockups,
+                    'source' => 'webhook_cache'
+                ]);
+            }
+
+            error_log("No cached mockups found, checking Gelato API...");
+
             $gelato_product_id = get_post_meta($post_id, 'gelato_product_id', true);
 
             if (!$gelato_product_id) {
@@ -66,12 +81,20 @@ add_action('rest_api_init', function () {
             // Extract mockups
             $mockups = $gelato->get_mockup_urls($product_data);
 
-            error_log("Returning " . count($mockups) . " mockups");
+            // Cache mockups if found
+            if (!empty($mockups)) {
+                update_post_meta($post_id, 'gelato_mockups', $mockups);
+                update_post_meta($post_id, 'gelato_mockups_updated_at', current_time('mysql'));
+                error_log("Cached " . count($mockups) . " mockups to post meta");
+            }
+
+            error_log("Returning " . count($mockups) . " mockups from API");
 
             return rest_ensure_response([
-                'status' => 'ready',
+                'status' => !empty($mockups) ? 'ready' : 'pending',
                 'mockups' => $mockups,
-                'product_id' => $gelato_product_id
+                'product_id' => $gelato_product_id,
+                'source' => 'api'
             ]);
         },
         'permission_callback' => '__return_true',
