@@ -172,10 +172,13 @@ class FursonaPrints_Gelato_API {
 
         if (isset($product_data['productImages']) && is_array($product_data['productImages'])) {
             foreach ($product_data['productImages'] as $image) {
-                if (isset($image['url'])) {
+                // Gelato uses 'fileUrl' not 'url'
+                $image_url = $image['fileUrl'] ?? $image['url'] ?? null;
+                if ($image_url) {
                     $mockups[] = [
-                        'url' => $image['url'],
-                        'variant' => $image['productUid'] ?? 'unknown'
+                        'url' => $image_url,
+                        'variant' => $image['productUid'] ?? 'unknown',
+                        'is_primary' => $image['isPrimary'] ?? false
                     ];
                 }
             }
