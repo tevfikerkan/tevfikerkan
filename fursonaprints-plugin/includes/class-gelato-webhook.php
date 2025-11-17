@@ -10,14 +10,27 @@ if (!defined('ABSPATH')) {
 
 add_action('rest_api_init', function () {
     register_rest_route('myplugin/v1', '/gelato-webhook', [
-        'methods' => 'POST',
+        'methods' => ['POST', 'GET'], // POST for Gelato, GET for testing
         'callback' => 'fursonaprints_gelato_webhook_handler',
-        'permission_callback' => '__return_true', // Gelato doesn't send auth, we'll verify by other means
+        'permission_callback' => '__return_true',
     ]);
 });
 
 function fursonaprints_gelato_webhook_handler($request) {
     error_log('=== GELATO WEBHOOK RECEIVED ===');
+
+    $method = $request->get_method();
+    error_log("Request method: {$method}");
+
+    // Handle GET requests (for testing)
+    if ($method === 'GET') {
+        return rest_ensure_response([
+            'status' => 'ok',
+            'message' => 'Gelato webhook endpoint is active',
+            'endpoint' => home_url('/wp-json/myplugin/v1/gelato-webhook'),
+            'instructions' => 'Configure this URL in your Gelato dashboard for store_product_updated events'
+        ]);
+    }
 
     // Log headers
     $headers = $request->get_headers();
