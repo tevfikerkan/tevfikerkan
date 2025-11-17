@@ -246,9 +246,14 @@ function fursonaprints_result_page_shortcode() {
 
             // Show mockups section
             mockupsSection.style.display = 'block';
+            mockupsLoading.innerHTML = '<p style="color: #8b6914; font-family: Georgia, serif;">Generating product mockups... This may take a few moments.</p>';
+
+            // Wait 10 seconds before first attempt to give Gelato time to generate mockups
+            console.log('⏳ Waiting 10 seconds for Gelato to generate mockups...');
+            await new Promise(resolve => setTimeout(resolve, 10000));
 
             let attempt = 0;
-            const maxAttempts = 20; // Try for about 1 minute
+            const maxAttempts = 20; // Try for about 1 minute after initial wait
 
             async function fetchMockups() {
                 attempt++;
