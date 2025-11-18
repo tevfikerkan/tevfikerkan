@@ -19,6 +19,7 @@ define('FURSONAPRINTS_URL', plugin_dir_url(__FILE__));
 
 // Include required files
 require_once FURSONAPRINTS_PATH . 'includes/class-admin-settings.php';
+require_once FURSONAPRINTS_PATH . 'includes/class-coordinate-finder.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-cpt.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-gelato-api.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-gelato-webhook.php';
@@ -32,6 +33,8 @@ require_once FURSONAPRINTS_PATH . 'includes/class-result-page.php';
 // Activation hook
 register_activation_hook(__FILE__, 'fursonaprints_activate');
 function fursonaprints_activate() {
+    // Create database table for mockup coordinates
+    FursonaPrints_Coordinate_Finder::create_table();
     flush_rewrite_rules();
 }
 
