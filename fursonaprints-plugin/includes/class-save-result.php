@@ -43,7 +43,7 @@ add_action('rest_api_init', function () {
 
             // Meta alanlarını kaydet (input_image_url ve prompt dahil)
             update_post_meta($post_id, 'job_id', $job_id);
-            update_post_meta($post_id, 'lowres_url', $image_url);
+            // Don't save Replicate URL yet - we'll update with WordPress URL after download
             if ($gender) {
                 update_post_meta($post_id, 'gender', $gender);
             }
@@ -77,6 +77,12 @@ add_action('rest_api_init', function () {
             // Featured image olarak ata
             set_post_thumbnail($post_id, $lowres_attachment_id);
             update_post_meta($post_id, 'lowres_attachment_id', $lowres_attachment_id);
+
+            // Save WordPress attachment URL (not Replicate URL) for mockup generation
+            $wordpress_image_url = wp_get_attachment_url($lowres_attachment_id);
+            if ($wordpress_image_url) {
+                update_post_meta($post_id, 'lowres_url', $wordpress_image_url);
+            }
             
             // 2. Giriş Görseli (input_image URL) ID'sini bul
             $input_attachment_id = 0;
