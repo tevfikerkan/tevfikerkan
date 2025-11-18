@@ -1,0 +1,14 @@
+Bu klasöre template.jpg dosyası eklemeniz gerekiyor.
+
+Adımlar:
+1. Mr.Mockup, Freepik veya diğer kaynaklardan duvar posteri mockup'ı indirin
+2. PSD dosyasını JPG olarak export edin (kalite: 90-100%)
+3. template.jpg olarak bu klasöre kaydedin
+4. config.json dosyasındaki koordinatları kontrol edin ve güncelleyin
+5. Bu TEMPLATE_NEEDED.txt dosyasını silebilirsiniz
+
+Önerilen mockup:
+- Mr.Mockup: https://mrmockup.com/free-poster-mockups/
+- Freepik: https://www.freepik.com/free-photos-vectors/poster-mockup (A4 çerçeveli duvar posteri)
+
+Not: Boş poster alanının koordinatlarını config.json'da belirtmeyi unutmayın.

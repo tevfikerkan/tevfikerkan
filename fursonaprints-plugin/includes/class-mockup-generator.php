@@ -38,46 +38,93 @@ class FursonaPrints_Mockup_Generator {
 
         $mockups = [];
 
-        // Available mockup templates
-        $templates = [
-            'a4_framed' => [
-                'name' => 'A4 Framed Poster',
-                'size' => 'A4 (8x12")',
-                'template' => 'a4-framed-poster.jpg',
-                'insert_coords' => ['x' => 100, 'y' => 150, 'width' => 600, 'height' => 800]
-            ],
-            'a3_wall' => [
-                'name' => 'A3 Wall Poster',
-                'size' => 'A3 (12x16")',
-                'template' => 'a3-wall-poster.jpg',
-                'insert_coords' => ['x' => 150, 'y' => 200, 'width' => 800, 'height' => 1066]
-            ]
-        ];
+        // Scan templates directory for config files
+        $templates = $this->scan_templates();
 
-        foreach ($templates as $key => $config) {
-            $template_path = $this->templates_dir . $config['template'];
-
-            // For now, create placeholder if template doesn't exist
-            if (!file_exists($template_path)) {
-                error_log("Template not found: {$template_path}, creating placeholder");
-                $mockup_url = $this->create_simple_mockup($portrait_path, $job_id, $key, $config);
-            } else {
-                $mockup_url = $this->composite_mockup($portrait_path, $template_path, $job_id, $key, $config);
-            }
+        if (empty($templates)) {
+            error_log("No templates found, using fallback");
+            // Fallback to simple framed mockup if no templates available
+            $mockup_url = $this->create_simple_mockup($portrait_path, $job_id, 'simple_frame', [
+                'name' => 'Framed Portrait',
+                'size' => 'Custom'
+            ]);
 
             if ($mockup_url) {
                 $mockups[] = [
                     'url' => $mockup_url,
-                    'variant' => $key,
-                    'name' => $config['name'],
-                    'size' => $config['size'],
-                    'is_primary' => $key === 'a4_framed'
+                    'variant' => 'simple_frame',
+                    'name' => 'Framed Portrait',
+                    'size' => 'Custom',
+                    'is_primary' => true
                 ];
+            }
+        } else {
+            foreach ($templates as $key => $config) {
+                error_log("Processing template: {$key}");
+
+                $template_path = $this->templates_dir . $config['template_dir'] . '/' . $config['file'];
+
+                if (!file_exists($template_path)) {
+                    error_log("Template file not found: {$template_path}");
+                    continue;
+                }
+
+                $mockup_url = $this->composite_mockup($portrait_path, $template_path, $job_id, $key, $config);
+
+                if ($mockup_url) {
+                    $mockups[] = [
+                        'url' => $mockup_url,
+                        'variant' => $key,
+                        'name' => $config['name'],
+                        'size' => $config['size'] ?? 'Standard',
+                        'is_primary' => $config['is_primary'] ?? false
+                    ];
+                }
             }
         }
 
         error_log("Generated " . count($mockups) . " mockups");
         return $mockups;
+    }
+
+    /**
+     * Scan templates directory for config.json files
+     *
+     * @return array Array of template configurations
+     */
+    private function scan_templates() {
+        $templates = [];
+
+        if (!is_dir($this->templates_dir)) {
+            error_log("Templates directory not found: {$this->templates_dir}");
+            return $templates;
+        }
+
+        $subdirs = glob($this->templates_dir . '*', GLOB_ONLYDIR);
+
+        foreach ($subdirs as $dir) {
+            $config_file = $dir . '/config.json';
+
+            if (!file_exists($config_file)) {
+                continue;
+            }
+
+            $config_json = file_get_contents($config_file);
+            $config = json_decode($config_json, true);
+
+            if (!$config || !isset($config['name']) || !isset($config['file'])) {
+                error_log("Invalid config in: {$config_file}");
+                continue;
+            }
+
+            $variant_key = $config['variant'] ?? basename($dir);
+            $config['template_dir'] = basename($dir);
+
+            $templates[$variant_key] = $config;
+            error_log("Loaded template: {$variant_key} from {$dir}");
+        }
+
+        return $templates;
     }
 
     /**
@@ -169,16 +216,26 @@ class FursonaPrints_Mockup_Generator {
                 return false;
             }
 
-            $coords = $config['insert_coords'];
+            $insert_area = $config['insert_area'] ?? $config['insert_coords'] ?? null;
 
-            // Resize portrait to fit
-            $resized_portrait = imagecreatetruecolor($coords['width'], $coords['height']);
+            if (!$insert_area) {
+                error_log("No insert_area defined in config");
+                return false;
+            }
+
+            // Resize portrait to fit insert area
+            $resized_portrait = imagecreatetruecolor($insert_area['width'], $insert_area['height']);
+
+            // Preserve transparency for PNG
+            imagealphablending($resized_portrait, false);
+            imagesavealpha($resized_portrait, true);
+
             imagecopyresampled(
                 $resized_portrait,
                 $portrait,
                 0, 0, 0, 0,
-                $coords['width'],
-                $coords['height'],
+                $insert_area['width'],
+                $insert_area['height'],
                 imagesx($portrait),
                 imagesy($portrait)
             );
@@ -187,12 +244,12 @@ class FursonaPrints_Mockup_Generator {
             imagecopy(
                 $template,
                 $resized_portrait,
-                $coords['x'],
-                $coords['y'],
+                $insert_area['x'],
+                $insert_area['y'],
                 0,
                 0,
-                $coords['width'],
-                $coords['height']
+                $insert_area['width'],
+                $insert_area['height']
             );
 
             // Save

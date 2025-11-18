@@ -1,0 +1,14 @@
+Bu klasöre template.jpg dosyası eklemeniz gerekiyor.
+
+Adımlar:
+1. Lifestyle mockup indirin (ev/ofis ortamında poster gösteren sahne)
+2. PSD dosyasını JPG olarak export edin (kalite: 90-100%)
+3. template.jpg olarak bu klasöre kaydedin
+4. config.json dosyasındaki koordinatları kontrol edin ve güncelleyin
+5. Bu TEMPLATE_NEEDED.txt dosyasını silebilirsiniz
+
+Önerilen mockup:
+- Mockupnest: https://mockupnest.com/free-wall-poster-mockup/
+- GraphicBurger: https://graphicburger.com/mock-ups/ (lifestyle poster mockups)
+
+Not: Lifestyle mockup'lar gerçek ortamda posteri gösterdiği için daha etkileyicidir.
