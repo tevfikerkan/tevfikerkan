@@ -55,7 +55,7 @@ add_action('rest_api_init', function () {
             error_log("No cached mockups found, generating new mockups...");
 
             // Get the portrait image path
-            $image_url = get_post_meta($post_id, 'image_url', true);
+            $image_url = get_post_meta($post_id, 'lowres_url', true);
 
             if (!$image_url) {
                 error_log("No image URL for post: {$post_id}");
