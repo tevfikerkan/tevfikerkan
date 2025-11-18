@@ -3,7 +3,7 @@
  * Plugin Name: FursonaPrints
  * Description: AI Pet Portrait Generator with Gelato Print-on-Demand
  * Version: 1.4.2
- * Author: Your Name
+ * Author: The WP Clan
  * Text Domain: fursonaprints
  */
 
