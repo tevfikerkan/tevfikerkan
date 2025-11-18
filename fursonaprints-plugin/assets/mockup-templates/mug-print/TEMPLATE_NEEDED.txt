@@ -1,0 +1,16 @@
+You need to add a template.jpg file to this folder.
+
+Steps:
+1. Download a mug mockup from Mr.Mockup, Freepik, or other sources
+2. Export the PSD as JPG (quality: 90-100%)
+3. Save as template.jpg in this folder
+4. Verify and update coordinates in config.json if needed
+5. You can delete this TEMPLATE_NEEDED.txt file
+
+Recommended mockup sources:
+- Mr.Mockup: https://mrmockup.com/free-mug-mockups/
+- Freepik: https://www.freepik.com/free-photos-vectors/mug-mockup (white coffee mug)
+- Mockup World: https://www.mockupworld.co/free/category/mug/
+
+Note: This template uses perspective transformation to wrap the portrait around the mug curve.
+The "curvature" value in config.json controls the barrel distortion (0.1-0.3 recommended).

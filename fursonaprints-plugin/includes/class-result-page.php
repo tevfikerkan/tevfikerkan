@@ -246,9 +246,13 @@ function fursonaprints_result_page_shortcode() {
 
             // Show mockups section
             mockupsSection.style.display = 'block';
+            mockupsLoading.innerHTML = '<p style="color: #8b6914; font-family: Georgia, serif;">Generating product mockups...</p>';
 
+            console.log('🎨 Generating mockups for job:', jobId);
+
+            // Try immediately (mockups are generated when portrait is saved)
             let attempt = 0;
-            const maxAttempts = 20; // Try for about 1 minute
+            const maxAttempts = 3; // Only try a few times since mockups are instant
 
             async function fetchMockups() {
                 attempt++;
@@ -261,7 +265,7 @@ function fursonaprints_result_page_shortcode() {
                     console.log('Mockups response:', data);
 
                     if (data.status === 'ready' && data.mockups && data.mockups.length > 0) {
-                        console.log(`✅ Found ${data.mockups.length} mockups`);
+                        console.log(`✅ Found ${data.mockups.length} mockups (${data.source})`);
 
                         mockupsLoading.style.display = 'none';
                         mockupsGallery.style.display = 'grid';
@@ -287,16 +291,14 @@ function fursonaprints_result_page_shortcode() {
                                 mockupCard.style.boxShadow = '0 4px 15px rgba(139, 105, 20, 0.15)';
                             };
 
-                            const variantName = mockup.variant.includes('a4') ? 'A4 (8x12")' : 'A3 (12x16")';
-
                             mockupCard.innerHTML = `
-                                <img src="${mockup.url}" alt="Product Mockup ${index + 1}"
+                                <img src="${mockup.url}" alt="${mockup.name}"
                                      style="width: 100%; height: auto; display: block;">
                                 <div style="padding: 20px; text-align: center;">
                                     <h4 style="font-family: Georgia, serif; color: #8b6914; margin: 0 0 10px 0;">
-                                        Premium Matte Poster
+                                        ${mockup.name}
                                     </h4>
-                                    <p style="color: #666; font-size: 14px; margin: 0 0 15px 0;">${variantName}</p>
+                                    <p style="color: #666; font-size: 14px; margin: 0 0 15px 0;">${mockup.size}</p>
                                     <button style="
                                         background: linear-gradient(135deg, #8b6914, #d4af37);
                                         color: white;
@@ -321,20 +323,20 @@ function fursonaprints_result_page_shortcode() {
                     }
 
                     // If still pending and under max attempts, try again
-                    if (data.status === 'pending' && attempt < maxAttempts) {
-                        setTimeout(fetchMockups, 3000);
+                    if ((data.status === 'pending' || data.status === 'error') && attempt < maxAttempts) {
+                        setTimeout(fetchMockups, 2000);
                         return;
                     }
 
                     // Give up after max attempts
                     if (attempt >= maxAttempts) {
-                        mockupsLoading.innerHTML = '<p style="color: #999;">Mockups are taking longer than expected. Please refresh the page.</p>';
+                        mockupsLoading.innerHTML = '<p style="color: #999;">Unable to generate mockups. Please try again.</p>';
                     }
 
                 } catch (error) {
                     console.error('Mockups fetch error:', error);
                     if (attempt < maxAttempts) {
-                        setTimeout(fetchMockups, 3000);
+                        setTimeout(fetchMockups, 2000);
                     } else {
                         mockupsLoading.innerHTML = '<p style="color: #999;">Unable to load mockups at this time.</p>';
                     }

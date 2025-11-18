@@ -33,28 +33,43 @@ class FursonaPrints_Gelato_API {
         error_log("=== GELATO: Creating product ===");
         error_log("Image URL: {$image_url}");
 
-        // Default variants (A4 and A3)
-        if (empty($variants)) {
-            $variants = [
-                'flat_a4-8x12-inch_200-gsm-80lb-uncoated_4-0_ver',
-                'flat_a3_200-gsm-80lb-uncoated_4-0_ver'
-            ];
+        // Check if credentials are configured
+        if (empty($this->api_key) || empty($this->store_id)) {
+            $error_msg = 'Gelato API credentials not configured. Please configure in Settings > FursonaPrints';
+            error_log("GELATO ERROR: {$error_msg}");
+            return new WP_Error('gelato_config_error', $error_msg);
         }
+
+        // Get template configuration from WordPress options
+        $template_id = get_option('fursonaprints_gelato_template_id', '85d917c6-b1c1-4637-a724-f4f267a37c27');
+        $layer_name = get_option('fursonaprints_gelato_layer_name', 'pet_portrait');
+
+        // Default variants (A4 and A3) from WordPress options
+        if (empty($variants)) {
+            $variant_a4 = get_option('fursonaprints_gelato_variant_a4', 'flat_a4-8x12-inch_200-gsm-80lb-uncoated_4-0_ver');
+            $variant_a3 = get_option('fursonaprints_gelato_variant_a3', 'flat_a3_200-gsm-80lb-uncoated_4-0_ver');
+            $variants = [$variant_a4, $variant_a3];
+        }
+
+        error_log("Using Template ID: {$template_id}");
+        error_log("Using Layer Name: {$layer_name}");
+        error_log("Using Variants: " . implode(', ', $variants));
 
         $endpoint = "{$this->base_url}/stores/{$this->store_id}/products:create-from-template";
 
         $body = [
-            'templateId' => '85d917c6-b1c1-4637-a724-f4f267a37c27',
+            'templateId' => $template_id,
             'title' => $title,
             'images' => [
                 [
-                    'layerName' => 'pet_portrait',
+                    'layerName' => $layer_name,
                     'imageUrl' => $image_url
                 ]
             ],
             'productUids' => $variants
         ];
 
+        error_log("Request endpoint: {$endpoint}");
         error_log("Request body: " . json_encode($body, JSON_PRETTY_PRINT));
 
         $response = wp_remote_post($endpoint, [
@@ -98,7 +113,15 @@ class FursonaPrints_Gelato_API {
     public function get_product($product_id) {
         error_log("=== GELATO: Getting product {$product_id} ===");
 
+        // Check if credentials are configured
+        if (empty($this->api_key) || empty($this->store_id)) {
+            $error_msg = 'Gelato API credentials not configured. Please configure in Settings > FursonaPrints';
+            error_log("GELATO ERROR: {$error_msg}");
+            return new WP_Error('gelato_config_error', $error_msg);
+        }
+
         $endpoint = "{$this->base_url}/stores/{$this->store_id}/products/{$product_id}";
+        error_log("Request endpoint: {$endpoint}");
 
         $response = wp_remote_get($endpoint, [
             'headers' => [
@@ -117,6 +140,7 @@ class FursonaPrints_Gelato_API {
         $data = json_decode($body, true);
 
         error_log("Response code: {$status_code}");
+        error_log("Response body: " . $body);
 
         if ($status_code !== 200) {
             $error_msg = isset($data['message']) ? $data['message'] : 'Product not found';
@@ -136,12 +160,25 @@ class FursonaPrints_Gelato_API {
     public function get_mockup_urls($product_data) {
         $mockups = [];
 
+        error_log("=== EXTRACTING MOCKUPS ===");
+        error_log("Product data keys: " . implode(', ', array_keys($product_data ?? [])));
+
+        if (isset($product_data['productImages'])) {
+            error_log("productImages exists, type: " . gettype($product_data['productImages']));
+            error_log("productImages content: " . json_encode($product_data['productImages']));
+        } else {
+            error_log("productImages NOT FOUND in response");
+        }
+
         if (isset($product_data['productImages']) && is_array($product_data['productImages'])) {
             foreach ($product_data['productImages'] as $image) {
-                if (isset($image['url'])) {
+                // Gelato uses 'fileUrl' not 'url'
+                $image_url = $image['fileUrl'] ?? $image['url'] ?? null;
+                if ($image_url) {
                     $mockups[] = [
-                        'url' => $image['url'],
-                        'variant' => $image['productUid'] ?? 'unknown'
+                        'url' => $image_url,
+                        'variant' => $image['productUid'] ?? 'unknown',
+                        'is_primary' => $image['isPrimary'] ?? false
                     ];
                 }
             }

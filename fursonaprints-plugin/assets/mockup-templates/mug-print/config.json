@@ -1,0 +1,15 @@
+{
+  "name": "Coffee Mug Print",
+  "size": "11 oz Standard Mug",
+  "file": "template.jpg",
+  "insert_area": {
+    "x": 380,
+    "y": 250,
+    "width": 340,
+    "height": 280,
+    "curvature": 0.15
+  },
+  "variant": "mug_print",
+  "perspective": true,
+  "is_primary": false
+}

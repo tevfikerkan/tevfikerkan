@@ -1,6 +1,7 @@
 <?php
 /**
- * Get Gelato Product Mockups Endpoint
+ * Get Product Mockups Endpoint
+ * Now generates mockups locally instead of using Gelato API
  */
 
 add_action('rest_api_init', function () {
@@ -38,40 +39,63 @@ add_action('rest_api_init', function () {
             }
 
             $post_id = $posts[0]->ID;
-            $gelato_product_id = get_post_meta($post_id, 'gelato_product_id', true);
 
-            if (!$gelato_product_id) {
-                error_log("No Gelato product ID for post: {$post_id}");
+            // Check if we have generated mockups cached
+            $cached_mockups = get_post_meta($post_id, 'generated_mockups', true);
+
+            if (!empty($cached_mockups) && is_array($cached_mockups)) {
+                error_log("Returning " . count($cached_mockups) . " cached mockups");
+                return rest_ensure_response([
+                    'status' => 'ready',
+                    'mockups' => $cached_mockups,
+                    'source' => 'cache'
+                ]);
+            }
+
+            error_log("No cached mockups found, generating new mockups...");
+
+            // Get the portrait image path
+            $image_url = get_post_meta($post_id, 'lowres_url', true);
+
+            if (!$image_url) {
+                error_log("No image URL for post: {$post_id}");
                 return rest_ensure_response([
                     'status' => 'pending',
-                    'mockups' => []
+                    'mockups' => [],
+                    'message' => 'Portrait not ready yet'
                 ]);
             }
 
-            error_log("Found Gelato product ID: {$gelato_product_id}");
+            // Convert URL to local path
+            $upload_dir = wp_upload_dir();
+            $portrait_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $image_url);
 
-            // Get product from Gelato API
-            $gelato = new FursonaPrints_Gelato_API();
-            $product_data = $gelato->get_product($gelato_product_id);
-
-            if (is_wp_error($product_data)) {
-                error_log("Gelato API error: " . $product_data->get_error_message());
+            if (!file_exists($portrait_path)) {
+                error_log("Portrait file not found: {$portrait_path}");
                 return rest_ensure_response([
                     'status' => 'error',
-                    'message' => $product_data->get_error_message(),
-                    'mockups' => []
+                    'mockups' => [],
+                    'message' => 'Portrait file not found'
                 ]);
             }
 
-            // Extract mockups
-            $mockups = $gelato->get_mockup_urls($product_data);
+            // Generate mockups
+            $generator = new FursonaPrints_Mockup_Generator();
+            $mockups = $generator->generate_mockups($portrait_path, $job_id);
 
-            error_log("Returning " . count($mockups) . " mockups");
+            // Cache the generated mockups
+            if (!empty($mockups)) {
+                update_post_meta($post_id, 'generated_mockups', $mockups);
+                update_post_meta($post_id, 'mockups_generated_at', current_time('mysql'));
+                error_log("Cached " . count($mockups) . " generated mockups");
+            }
+
+            error_log("Returning " . count($mockups) . " newly generated mockups");
 
             return rest_ensure_response([
-                'status' => 'ready',
+                'status' => !empty($mockups) ? 'ready' : 'error',
                 'mockups' => $mockups,
-                'product_id' => $gelato_product_id
+                'source' => 'generated'
             ]);
         },
         'permission_callback' => '__return_true',
