@@ -60,10 +60,10 @@ class FursonaPrints_Gelato_API {
         $body = [
             'templateId' => $template_id,
             'title' => $title,
-            'imagePlaceholders' => [
+            'images' => [
                 [
-                    'name' => $layer_name,
-                    'fileUrl' => $image_url
+                    'layerName' => $layer_name,
+                    'imageUrl' => $image_url
                 ]
             ],
             'productUids' => $variants
