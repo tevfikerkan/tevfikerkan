@@ -1,14 +1,14 @@
-Bu klasöre template.jpg dosyası eklemeniz gerekiyor.
+You need to add a template.jpg file to this folder.
 
-Adımlar:
-1. Mr.Mockup, Freepik veya diğer kaynaklardan duvar posteri mockup'ı indirin (A3 boyutu)
-2. PSD dosyasını JPG olarak export edin (kalite: 90-100%)
-3. template.jpg olarak bu klasöre kaydedin
-4. config.json dosyasındaki koordinatları kontrol edin ve güncelleyin
-5. Bu TEMPLATE_NEEDED.txt dosyasını silebilirsiniz
+Steps:
+1. Download a wall poster mockup from Mr.Mockup, Freepik, or other sources (A3 size)
+2. Export the PSD as JPG (quality: 90-100%)
+3. Save as template.jpg in this folder
+4. Verify and update coordinates in config.json if needed
+5. You can delete this TEMPLATE_NEEDED.txt file
 
-Önerilen mockup:
+Recommended mockup sources:
 - Mr.Mockup: https://mrmockup.com/free-poster-mockups/
-- Freepik: https://www.freepik.com/free-photos-vectors/poster-mockup (A3 çerçeveli duvar posteri)
+- Freepik: https://www.freepik.com/free-photos-vectors/poster-mockup (A3 framed wall poster)
 
-Not: A3 posteri A4'ten daha büyük olduğu için farklı bir mockup seçin.
+Note: Choose a different mockup than A4 since A3 posters are larger.

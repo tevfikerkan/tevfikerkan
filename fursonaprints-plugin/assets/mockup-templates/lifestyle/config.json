@@ -1,6 +1,6 @@
 {
   "name": "Lifestyle Scene",
-  "size": "A4 (21x29.7 cm)",
+  "size": "A4 (8.3x11.7 in)",
   "file": "template.jpg",
   "insert_area": {
     "x": 380,
@@ -9,5 +9,6 @@
     "height": 594
   },
   "variant": "lifestyle",
+  "perspective": false,
   "is_primary": false
 }

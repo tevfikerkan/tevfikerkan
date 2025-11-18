@@ -223,22 +223,34 @@ class FursonaPrints_Mockup_Generator {
                 return false;
             }
 
-            // Resize portrait to fit insert area
-            $resized_portrait = imagecreatetruecolor($insert_area['width'], $insert_area['height']);
+            // Check if perspective transformation is needed
+            if (isset($config['perspective']) && $config['perspective'] === true) {
+                $resized_portrait = $this->apply_perspective_transform($portrait, $insert_area);
+            } else {
+                // Standard resize
+                $resized_portrait = imagecreatetruecolor($insert_area['width'], $insert_area['height']);
 
-            // Preserve transparency for PNG
-            imagealphablending($resized_portrait, false);
-            imagesavealpha($resized_portrait, true);
+                // Preserve transparency for PNG
+                imagealphablending($resized_portrait, false);
+                imagesavealpha($resized_portrait, true);
 
-            imagecopyresampled(
-                $resized_portrait,
-                $portrait,
-                0, 0, 0, 0,
-                $insert_area['width'],
-                $insert_area['height'],
-                imagesx($portrait),
-                imagesy($portrait)
-            );
+                imagecopyresampled(
+                    $resized_portrait,
+                    $portrait,
+                    0, 0, 0, 0,
+                    $insert_area['width'],
+                    $insert_area['height'],
+                    imagesx($portrait),
+                    imagesy($portrait)
+                );
+            }
+
+            if (!$resized_portrait) {
+                error_log("Failed to resize portrait");
+                imagedestroy($template);
+                imagedestroy($portrait);
+                return false;
+            }
 
             // Composite onto template
             imagecopy(
@@ -274,6 +286,57 @@ class FursonaPrints_Mockup_Generator {
             error_log("Composite mockup error: " . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Apply perspective transformation to portrait (for curved surfaces like mugs)
+     */
+    private function apply_perspective_transform($portrait, $insert_area) {
+        $src_width = imagesx($portrait);
+        $src_height = imagesy($portrait);
+
+        $dst_width = $insert_area['width'];
+        $dst_height = $insert_area['height'];
+
+        // Create destination image
+        $transformed = imagecreatetruecolor($dst_width, $dst_height);
+        imagealphablending($transformed, false);
+        imagesavealpha($transformed, true);
+
+        // Apply cylindrical wrap effect (for mug curvature)
+        // This creates a subtle barrel distortion
+        $curvature = $insert_area['curvature'] ?? 0.15; // Default curvature factor
+
+        for ($y = 0; $y < $dst_height; $y++) {
+            for ($x = 0; $x < $dst_width; $x++) {
+                // Calculate normalized coordinates (-1 to 1)
+                $nx = ($x / $dst_width) * 2 - 1;
+                $ny = ($y / $dst_height) * 2 - 1;
+
+                // Apply cylindrical projection
+                $r = sqrt($nx * $nx + $ny * $ny);
+
+                if ($r > 1.0) {
+                    continue; // Outside bounds
+                }
+
+                // Apply curvature
+                $theta = atan2($ny, $nx);
+                $curved_r = $r * (1 + $curvature * $r * $r);
+
+                // Map back to source coordinates
+                $src_x = (($curved_r * cos($theta) + 1) / 2) * $src_width;
+                $src_y = (($curved_r * sin($theta) + 1) / 2) * $src_height;
+
+                // Bounds check
+                if ($src_x >= 0 && $src_x < $src_width && $src_y >= 0 && $src_y < $src_height) {
+                    $color = imagecolorat($portrait, (int)$src_x, (int)$src_y);
+                    imagesetpixel($transformed, $x, $y, $color);
+                }
+            }
+        }
+
+        return $transformed;
     }
 
     /**

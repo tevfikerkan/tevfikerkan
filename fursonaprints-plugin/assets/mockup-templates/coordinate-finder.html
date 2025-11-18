@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mockup Template Koordinat Bulucu</title>
+    <title>Mockup Template Coordinate Finder</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -116,21 +116,21 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎨 Mockup Template Koordinat Bulucu</h1>
-        <p class="subtitle">Template görselinin üzerinde boş poster alanını seçerek koordinatları bulun</p>
+        <h1>🎨 Mockup Template Coordinate Finder</h1>
+        <p class="subtitle">Select the empty poster area on the template image to find coordinates</p>
 
         <div class="instructions">
-            <strong>Nasıl Kullanılır:</strong>
+            <strong>How to Use:</strong>
             <ol>
-                <li>Template görselini yükleyin (JPG veya PNG)</li>
-                <li>Görselin üzerinde boş poster alanının <strong>sol üst köşesine</strong> tıklayın</li>
-                <li>Fare tuşuna basılı tutarak <strong>sağ alt köşeye</strong> kadar sürükleyin</li>
-                <li>Bıraktığınızda koordinatlar ve config.json otomatik oluşturulacak</li>
+                <li>Upload the template image (JPG or PNG)</li>
+                <li>Click on the <strong>top-left corner</strong> of the empty poster area</li>
+                <li>Hold mouse button and drag to the <strong>bottom-right corner</strong></li>
+                <li>Release to automatically generate coordinates and config.json</li>
             </ol>
         </div>
 
         <div class="upload-area" id="uploadArea">
-            <p>📁 Template görselini buraya sürükleyin veya tıklayın</p>
+            <p>📁 Drag template image here or click to browse</p>
             <input type="file" id="imageInput" accept="image/*">
         </div>
 
@@ -140,18 +140,18 @@
         </div>
 
         <div class="coordinates" id="coordinates">
-            <h3>Seçim Koordinatları:</h3>
+            <h3>Selection Coordinates:</h3>
             <p><strong>X:</strong> <span id="coordX">0</span> px</p>
             <p><strong>Y:</strong> <span id="coordY">0</span> px</p>
             <p><strong>Width:</strong> <span id="coordW">0</span> px</p>
             <p><strong>Height:</strong> <span id="coordH">0</span> px</p>
-            <p class="info">💡 Bu koordinatları config.json dosyanıza kopyalayın</p>
+            <p class="info">💡 Copy these coordinates to your config.json file</p>
         </div>
 
         <div id="jsonOutput"></div>
 
-        <button id="copyBtn" style="display: none;">📋 JSON'u Kopyala</button>
-        <button id="resetBtn" style="display: none;">🔄 Sıfırla</button>
+        <button id="copyBtn" style="display: none;">📋 Copy JSON</button>
+        <button id="resetBtn" style="display: none;">🔄 Reset</button>
     </div>
 
     <script>
@@ -281,7 +281,7 @@
 
             const jsonString = JSON.stringify(config, null, 2);
             jsonOutput.innerHTML = `
-                <h3>config.json İçeriği:</h3>
+                <h3>config.json Content:</h3>
                 <div class="json-output"><pre>${jsonString}</pre></div>
             `;
 
@@ -291,7 +291,7 @@
             copyBtn.onclick = () => {
                 navigator.clipboard.writeText(jsonString);
                 const originalText = copyBtn.textContent;
-                copyBtn.textContent = '✅ Kopyalandı!';
+                copyBtn.textContent = '✅ Copied!';
                 setTimeout(() => {
                     copyBtn.textContent = originalText;
                 }, 2000);
