@@ -2,7 +2,7 @@
 /**
  * Plugin Name: FursonaPrints
  * Description: AI Pet Portrait Generator with Gelato Print-on-Demand
- * Version: 1.3.6
+ * Version: 1.4.0
  * Author: Your Name
  * Text Domain: fursonaprints
  */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('FURSONAPRINTS_VERSION', '1.3.6');
+define('FURSONAPRINTS_VERSION', '1.4.0');
 define('FURSONAPRINTS_PATH', plugin_dir_path(__FILE__));
 define('FURSONAPRINTS_URL', plugin_dir_url(__FILE__));
 
@@ -22,6 +22,7 @@ require_once FURSONAPRINTS_PATH . 'includes/class-admin-settings.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-cpt.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-gelato-api.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-gelato-webhook.php';
+require_once FURSONAPRINTS_PATH . 'includes/class-mockup-generator.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-save-result.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-check-result.php';
 require_once FURSONAPRINTS_PATH . 'includes/class-get-mockups.php';
