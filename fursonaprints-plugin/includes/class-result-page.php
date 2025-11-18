@@ -246,7 +246,20 @@ function fursonaprints_result_page_shortcode() {
 
             // Show mockups section
             mockupsSection.style.display = 'block';
-            mockupsLoading.innerHTML = '<p style="color: #8b6914; font-family: Georgia, serif;">Generating product mockups... This may take a few moments.</p>';
+            mockupsLoading.innerHTML = `
+                <p style="color: #8b6914; font-family: Georgia, serif; font-size: 18px; margin-bottom: 10px;">
+                    ⏳ Waiting for Gelato webhook...
+                </p>
+                <p style="color: #999; font-size: 14px;">
+                    Product mockups will appear automatically when ready.
+                </p>
+            `;
+
+            console.log('📡 Webhook bekleniyor - Gelato mockup\'ları oluşturduğunda otomatik yüklenecek');
+            console.log('🔍 Job ID:', jobId);
+
+            /* POLLING CODE - TEMPORARILY DISABLED FOR WEBHOOK TESTING
+               Polling devre dışı - Webhook testi için
 
             // Wait 10 seconds before first attempt to give Gelato time to generate mockups
             console.log('⏳ Waiting 10 seconds for Gelato to generate mockups...');
@@ -347,6 +360,7 @@ function fursonaprints_result_page_shortcode() {
             }
 
             fetchMockups();
+            END POLLING CODE */
         }
     })();
     </script>
