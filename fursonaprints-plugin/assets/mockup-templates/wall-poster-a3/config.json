@@ -1,0 +1,14 @@
+{
+  "name": "Wall Poster A3",
+  "size": "A3 (11.7x16.5 in)",
+  "file": "template.jpg",
+  "insert_area": {
+    "x": 320,
+    "y": 240,
+    "width": 680,
+    "height": 960
+  },
+  "variant": "wall_a3",
+  "perspective": false,
+  "is_primary": false
+}

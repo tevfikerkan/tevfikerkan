@@ -1,0 +1,14 @@
+{
+  "name": "Wall Poster A4",
+  "size": "A4 (8.3x11.7 in)",
+  "file": "template.jpg",
+  "insert_area": {
+    "x": 245,
+    "y": 180,
+    "width": 510,
+    "height": 720
+  },
+  "variant": "wall_a4",
+  "perspective": false,
+  "is_primary": true
+}

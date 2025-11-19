@@ -1,0 +1,14 @@
+You need to add a template.jpg file to this folder.
+
+Steps:
+1. Download a wall poster mockup from Mr.Mockup, Freepik, or other sources
+2. Export the PSD as JPG (quality: 90-100%)
+3. Save as template.jpg in this folder
+4. Verify and update coordinates in config.json if needed
+5. You can delete this TEMPLATE_NEEDED.txt file
+
+Recommended mockup sources:
+- Mr.Mockup: https://mrmockup.com/free-poster-mockups/
+- Freepik: https://www.freepik.com/free-photos-vectors/poster-mockup (A4 framed wall poster)
+
+Note: Make sure to specify the empty poster area coordinates in config.json.
