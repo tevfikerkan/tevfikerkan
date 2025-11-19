@@ -13,10 +13,24 @@ class FursonaPrints_Coordinate_Finder {
 
     public function __construct() {
         add_action('admin_menu', [$this, 'add_admin_menu']);
+        add_action('admin_init', [$this, 'ensure_table_exists']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_ajax_save_mockup_coordinates', [$this, 'ajax_save_coordinates']);
         add_action('wp_ajax_delete_mockup', [$this, 'ajax_delete_mockup']);
         add_action('wp_ajax_get_mockup_coordinates', [$this, 'ajax_get_coordinates']);
+    }
+
+    /**
+     * Ensure database table exists
+     */
+    public function ensure_table_exists() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'fursonaprints_mockups';
+
+        // Check if table exists
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+            self::create_table();
+        }
     }
 
     /**
