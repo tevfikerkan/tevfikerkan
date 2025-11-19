@@ -1,0 +1,252 @@
+/**
+ * Coordinate Finder Styles
+ */
+
+.fursonaprints-coordinates-page {
+    max-width: 1400px;
+}
+
+.fursonaprints-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+@media (max-width: 1200px) {
+    .fursonaprints-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.fursonaprints-panel {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.fursonaprints-panel h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+}
+
+/* Form Elements */
+.fursonaprints-form-group {
+    margin-bottom: 20px;
+}
+
+.fursonaprints-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.fursonaprints-form-group input[type="text"] {
+    width: 100%;
+    max-width: 500px;
+}
+
+.fursonaprints-form-group .description {
+    margin-top: 6px;
+    color: #646970;
+    font-size: 13px;
+}
+
+/* Canvas Container */
+.fursonaprints-canvas-container {
+    margin: 20px 0;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background: #f9f9f9;
+}
+
+#mockup-canvas {
+    display: block;
+    max-width: 100%;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: crosshair;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.fursonaprints-instructions {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff;
+    border-left: 4px solid #2271b1;
+    border-radius: 2px;
+}
+
+.fursonaprints-instructions p {
+    margin: 0 0 10px;
+    font-size: 14px;
+}
+
+.fursonaprints-point-status {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2271b1;
+}
+
+.fursonaprints-point-status #point-count {
+    font-size: 24px;
+    color: #d63638;
+}
+
+/* Actions */
+.fursonaprints-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.fursonaprints-actions .button {
+    font-size: 14px;
+}
+
+/* Message */
+#coordinate-message {
+    margin-top: 15px;
+    padding: 12px;
+    border-left-width: 4px;
+    border-left-style: solid;
+}
+
+#coordinate-message.notice-success {
+    background: #d7f8d7;
+    border-left-color: #00a32a;
+}
+
+#coordinate-message.notice-error {
+    background: #fcf0f1;
+    border-left-color: #d63638;
+}
+
+/* Mockups List */
+.fursonaprints-list-panel {
+    max-height: 800px;
+    overflow-y: auto;
+}
+
+.fursonaprints-mockups-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.fursonaprints-mockups-list .no-mockups {
+    text-align: center;
+    padding: 40px 20px;
+    color: #646970;
+    font-style: italic;
+}
+
+.mockup-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.mockup-item:hover {
+    background: #fff;
+    border-color: #2271b1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mockup-item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.mockup-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.mockup-info h3 {
+    margin: 0 0 5px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.mockup-info .mockup-date {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: #646970;
+}
+
+.mockup-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.mockup-actions .button {
+    font-size: 13px;
+    height: 28px;
+    line-height: 26px;
+    padding: 0 10px;
+}
+
+/* Loading States */
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 782px) {
+    .fursonaprints-actions {
+        flex-direction: column;
+    }
+
+    .fursonaprints-actions .button {
+        width: 100%;
+    }
+
+    .mockup-item {
+        flex-direction: column;
+    }
+
+    .mockup-item img {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+    }
+}
+
+/* Scrollbar Styling */
+.fursonaprints-list-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.fursonaprints-list-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.fursonaprints-list-panel::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.fursonaprints-list-panel::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

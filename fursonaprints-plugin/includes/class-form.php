@@ -7,18 +7,18 @@ function pet_photo_gender_form_shortcode() {
     ob_start();
     ?>
     <form id="pet-form" enctype="multipart/form-data" method="post">
-        <label for="pet-photo">Upload your pet photo:</label><br>
+        <label for="pet-photo"><?php echo esc_html__('Upload your pet photo:', 'fursonaprints'); ?></label><br>
         <input type="file" id="pet-photo" name="pet_photo" accept="image/*" required><br><br>
 
-        <label for="pet-gender">Select gender:</label><br>
+        <label for="pet-gender"><?php echo esc_html__('Select gender:', 'fursonaprints'); ?></label><br>
         <select id="pet-gender" name="pet_gender" required>
-            <option value="">-- Please select --</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="not_important">Not Important</option>
+            <option value=""><?php echo esc_html__('-- Please select --', 'fursonaprints'); ?></option>
+            <option value="male"><?php echo esc_html__('Male', 'fursonaprints'); ?></option>
+            <option value="female"><?php echo esc_html__('Female', 'fursonaprints'); ?></option>
+            <option value="not_important"><?php echo esc_html__('Not Important', 'fursonaprints'); ?></option>
         </select><br><br>
 
-        <input type="submit" name="submit_pet_form" value="Submit">
+        <input type="submit" name="submit_pet_form" value="<?php echo esc_attr__('Submit', 'fursonaprints'); ?>">
     </form>
     <?php
 
@@ -31,7 +31,7 @@ function pet_photo_gender_form_shortcode() {
             // Görsel kontrolü
             $image_info = getimagesize($temp_path);
             if (!$image_info) {
-                echo '<p style="color:red;">Invalid image file.</p>';
+                echo '<p style="color:red;">' . esc_html__('Invalid image file.', 'fursonaprints') . '</p>';
                 return ob_get_clean();
             }
 
@@ -52,7 +52,7 @@ function pet_photo_gender_form_shortcode() {
                     $image = imagecreatefromgif($temp_path);
                     break;
                 default:
-                    echo '<p style="color:red;">Unsupported image format.</p>';
+                    echo '<p style="color:red;">' . esc_html__('Unsupported image format.', 'fursonaprints') . '</p>';
                     return ob_get_clean();
             }
 
@@ -79,7 +79,7 @@ function pet_photo_gender_form_shortcode() {
 
             $attachment_id = media_handle_sideload($file_array, 0);
             if (is_wp_error($attachment_id)) {
-                echo '<p style="color:red;">Upload failed.</p>';
+                echo '<p style="color:red;">' . esc_html__('Upload failed.', 'fursonaprints') . '</p>';
                 @unlink($jpg_temp);
                 return ob_get_clean();
             }
@@ -91,7 +91,7 @@ function pet_photo_gender_form_shortcode() {
             // URL erişilebilir mi kontrol et
             $check = wp_remote_head($image_url);
             if (is_wp_error($check) || wp_remote_retrieve_response_code($check) !== 200) {
-                echo '<p style="color:red;">Image not accessible.</p>';
+                echo '<p style="color:red;">' . esc_html__('Image not accessible.', 'fursonaprints') . '</p>';
                 @unlink($jpg_temp);
                 return ob_get_clean();
             }
@@ -117,22 +117,22 @@ function pet_photo_gender_form_shortcode() {
 
                 if (!empty($json['job_id'])) {
                     $job_id = ltrim(trim($json['job_id']), '=');
-                    
+
                     // Hemen yönlendir
                     echo "<script>
                         window.location.href = '" . home_url('/ai-result/?job_id=') . "{$job_id}';
                     </script>";
-                    
+
                 } else {
-                    echo '<p style="color:red;">❌ job_id alınamadı. Lütfen tekrar deneyin.</p>';
+                    echo '<p style="color:red;">' . esc_html__('Job ID could not be retrieved. Please try again.', 'fursonaprints') . '</p>';
                 }
             } else {
                 $error_message = $response->get_error_message();
-                echo '<p style="color:red;">❌ Bağlantı hatası: ' . esc_html($error_message) . '</p>';
+                echo '<p style="color:red;">' . sprintf(esc_html__('Connection error: %s', 'fursonaprints'), esc_html($error_message)) . '</p>';
             }
-            
+
         } else {
-            echo '<p style="color:red;">Lütfen tüm alanları doldurun.</p>';
+            echo '<p style="color:red;">' . esc_html__('Please fill in all fields.', 'fursonaprints') . '</p>';
         }
     }
 
