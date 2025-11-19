@@ -19,9 +19,10 @@ class FursonaPrints_Admin_Settings {
      * Add settings page to admin menu
      */
     public function add_admin_menu() {
-        add_options_page(
-            'FursonaPrints Settings',
-            'FursonaPrints',
+        add_submenu_page(
+            'fursonaprints',
+            __('Settings', 'fursonaprints'),
+            __('Settings', 'fursonaprints'),
             'manage_options',
             'fursonaprints-settings',
             [$this, 'render_settings_page']

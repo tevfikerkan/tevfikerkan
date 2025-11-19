@@ -99,12 +99,25 @@
     color: #d63638;
 }
 
+/* Naming Notice */
+.fursonaprints-naming-notice {
+    margin-top: 20px;
+    padding: 10px 12px;
+    background: #e7f5fe;
+    border-left: 4px solid #2271b1;
+}
+
+.fursonaprints-naming-notice p {
+    margin: 0;
+    font-size: 14px;
+}
+
 /* Actions */
 .fursonaprints-actions {
     display: flex;
     gap: 10px;
-    margin-top: 20px;
-    padding-top: 20px;
+    margin-top: 15px;
+    padding-top: 15px;
     border-top: 1px solid #eee;
 }
 

@@ -37,14 +37,25 @@ class FursonaPrints_Coordinate_Finder {
      * Add Coordinate Finder to admin menu
      */
     public function add_admin_menu() {
+        // Add main parent menu
         add_menu_page(
-            __('Mockup Coordinates', 'fursonaprints'),
-            __('Mockup Coordinates', 'fursonaprints'),
+            __('Fursona Prints', 'fursonaprints'),
+            __('Fursona Prints', 'fursonaprints'),
             'manage_options',
-            'fursonaprints-coordinates',
+            'fursonaprints',
             [$this, 'render_page'],
             'dashicons-images-alt2',
             30
+        );
+
+        // Add Mockup Coordinates as first submenu (same as parent)
+        add_submenu_page(
+            'fursonaprints',
+            __('Mockup Coordinates', 'fursonaprints'),
+            __('Mockup Coordinates', 'fursonaprints'),
+            'manage_options',
+            'fursonaprints',
+            [$this, 'render_page']
         );
     }
 
@@ -53,7 +64,7 @@ class FursonaPrints_Coordinate_Finder {
      */
     public function enqueue_scripts($hook) {
         // Only load on our admin page
-        if ($hook !== 'toplevel_page_fursonaprints-coordinates') {
+        if ($hook !== 'toplevel_page_fursonaprints') {
             return;
         }
 
@@ -217,7 +228,7 @@ class FursonaPrints_Coordinate_Finder {
                             <?php echo esc_html__('Mockup Name:', 'fursonaprints'); ?>
                         </label>
                         <input type="text" id="mockup-name" class="regular-text"
-                               placeholder="<?php echo esc_attr__('e.g., Portrait Frame A4', 'fursonaprints'); ?>">
+                               value="<?php echo esc_attr__('New Mockup Name', 'fursonaprints'); ?>">
                     </div>
 
                     <div class="fursonaprints-form-group">
@@ -237,6 +248,10 @@ class FursonaPrints_Coordinate_Finder {
                                 <span id="point-count">0</span> / 4 <?php echo esc_html__('points defined', 'fursonaprints'); ?>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="fursonaprints-naming-notice notice notice-info inline">
+                        <p><?php echo esc_html__('Please give a name to your mockup image before saving the coordinates.', 'fursonaprints'); ?></p>
                     </div>
 
                     <div class="fursonaprints-actions">
@@ -311,6 +326,161 @@ class FursonaPrints_Coordinate_Finder {
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+
+        // Add default mockups if table is empty
+        self::add_default_mockups();
+    }
+
+    /**
+     * Add 3 default mockups to help users get started
+     */
+    public static function add_default_mockups() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'fursonaprints_mockups';
+
+        // Check if we already have mockups
+        $count = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+        if ($count > 0) {
+            error_log("Default mockups already exist, skipping creation");
+            return;
+        }
+
+        error_log("Creating default mockup templates...");
+
+        // Create upload directory
+        $upload = wp_upload_dir();
+        $mockup_dir = $upload['basedir'] . '/default-mockups/';
+        if (!file_exists($mockup_dir)) {
+            wp_mkdir_p($mockup_dir);
+        }
+
+        $default_mockups = [
+            [
+                'name' => 'A4 Frame on Wall',
+                'width' => 800,
+                'height' => 1000,
+                'frame_color' => [139, 105, 20], // Gold
+                'insert_area' => ['x' => 100, 'y' => 150, 'width' => 600, 'height' => 700]
+            ],
+            [
+                'name' => 'A3 Portrait Frame',
+                'width' => 1000,
+                'height' => 1200,
+                'frame_color' => [101, 67, 33], // Dark wood
+                'insert_area' => ['x' => 120, 'y' => 180, 'width' => 760, 'height' => 840]
+            ],
+            [
+                'name' => 'Square Canvas Frame',
+                'width' => 900,
+                'height' => 900,
+                'frame_color' => [64, 64, 64], // Gray
+                'insert_area' => ['x' => 150, 'y' => 150, 'width' => 600, 'height' => 600]
+            ]
+        ];
+
+        foreach ($default_mockups as $mockup_data) {
+            $image_path = self::create_default_mockup_image($mockup_data, $mockup_dir);
+
+            if ($image_path) {
+                $image_url = $upload['baseurl'] . '/default-mockups/' . basename($image_path);
+
+                // Define coordinates for the insert area
+                $coords = $mockup_data['insert_area'];
+                $coordinates = [
+                    ['x' => $coords['x'], 'y' => $coords['y']], // Top-left
+                    ['x' => $coords['x'] + $coords['width'], 'y' => $coords['y']], // Top-right
+                    ['x' => $coords['x'] + $coords['width'], 'y' => $coords['y'] + $coords['height']], // Bottom-right
+                    ['x' => $coords['x'], 'y' => $coords['y'] + $coords['height']] // Bottom-left
+                ];
+
+                $wpdb->insert(
+                    $table_name,
+                    [
+                        'mockup_name' => $mockup_data['name'],
+                        'image_url' => $image_url,
+                        'coordinates' => json_encode($coordinates),
+                        'updated_at' => current_time('mysql')
+                    ],
+                    ['%s', '%s', '%s', '%s']
+                );
+
+                error_log("Created default mockup: {$mockup_data['name']}");
+            }
+        }
+    }
+
+    /**
+     * Create a default mockup template image
+     */
+    private static function create_default_mockup_image($mockup_data, $output_dir) {
+        try {
+            $width = $mockup_data['width'];
+            $height = $mockup_data['height'];
+
+            // Create image
+            $image = imagecreatetruecolor($width, $height);
+
+            // Background (wall texture - light beige)
+            $bg_color = imagecolorallocate($image, 240, 235, 220);
+            imagefill($image, 0, 0, $bg_color);
+
+            // Add subtle texture
+            for ($i = 0; $i < 5000; $i++) {
+                $x = rand(0, $width - 1);
+                $y = rand(0, $height - 1);
+                $noise_color = imagecolorallocate($image, rand(235, 245), rand(230, 240), rand(215, 225));
+                imagesetpixel($image, $x, $y, $noise_color);
+            }
+
+            // Draw frame
+            $coords = $mockup_data['insert_area'];
+            $frame_color = imagecolorallocate($image, $mockup_data['frame_color'][0], $mockup_data['frame_color'][1], $mockup_data['frame_color'][2]);
+
+            // Outer frame
+            $frame_width = 20;
+            imagefilledrectangle(
+                $image,
+                $coords['x'] - $frame_width,
+                $coords['y'] - $frame_width,
+                $coords['x'] + $coords['width'] + $frame_width,
+                $coords['y'] + $coords['height'] + $frame_width,
+                $frame_color
+            );
+
+            // Inner white mat
+            $mat_color = imagecolorallocate($image, 255, 255, 255);
+            imagefilledrectangle(
+                $image,
+                $coords['x'],
+                $coords['y'],
+                $coords['x'] + $coords['width'],
+                $coords['y'] + $coords['height'],
+                $mat_color
+            );
+
+            // Add placeholder text in center
+            $text_color = imagecolorallocate($image, 200, 200, 200);
+            $text = 'Your Portrait Here';
+            $font_size = 3;
+            $text_width = imagefontwidth($font_size) * strlen($text);
+            $text_height = imagefontheight($font_size);
+            $text_x = $coords['x'] + ($coords['width'] - $text_width) / 2;
+            $text_y = $coords['y'] + ($coords['height'] - $text_height) / 2;
+            imagestring($image, $font_size, $text_x, $text_y, $text, $text_color);
+
+            // Save image
+            $filename = sanitize_file_name($mockup_data['name']) . '.jpg';
+            $filepath = $output_dir . $filename;
+            imagejpeg($image, $filepath, 90);
+
+            imagedestroy($image);
+
+            return $filepath;
+
+        } catch (Exception $e) {
+            error_log("Error creating default mockup: " . $e->getMessage());
+            return false;
+        }
     }
 }
 
